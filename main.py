@@ -54,6 +54,12 @@ async def send_scheduled_msg(bot: Bot):
 
     for group_id in group_ids:
         try:
+            chat = await bot.get_chat(group_id)
+            last_pinned_msg = chat.pinned_message
+            if last_pinned_msg.from_user.id == bot.id:
+                await bot.unpin_chat_message(chat_id=group_id)
+                logging.info(f"Unpin previous sended message [Group ID:{group_id}]")
+
             resp_msg = await bot.send_message(chat_id=group_id, text=msg)
             logging.info(f"Send scheduled message [Group ID:{group_id}]")
             await bot.pin_chat_message(group_id, resp_msg.message_id)
@@ -73,8 +79,8 @@ async def main():
     scheduler.add_job(
         send_scheduled_msg,
         trigger="cron",
-        hour=5,
-        minute=0,
+        hour=2,
+        minute=30,
         start_date=datetime.now(TIMEZONE),
         kwargs={
             "bot": bot,
