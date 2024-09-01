@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime
 import logging
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -74,14 +73,13 @@ async def send_scheduled_msg(bot: Bot):
 async def main():
     await on_startup(bot)
 
-    scheduler = AsyncIOScheduler()
+    scheduler = AsyncIOScheduler(timezone=TIMEZONE)
 
     scheduler.add_job(
         send_scheduled_msg,
         trigger="cron",
         hour=2,
-        minute=30,
-        start_date=datetime.now(TIMEZONE),
+        minute=45,
         kwargs={
             "bot": bot,
         },
