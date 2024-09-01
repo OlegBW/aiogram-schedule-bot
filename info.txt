@@ -1,1 +1,1 @@
-sudo docker run -v "$(pwd)/bot_data:/app/data" schedule-bot
+sudo docker run -d -v "$(pwd)/bot_data:/app/data" schedule-bot
