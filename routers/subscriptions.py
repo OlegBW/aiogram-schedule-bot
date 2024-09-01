@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router
 from aiogram.filters import Command
 from aiogram.enums import ChatType
@@ -19,6 +21,7 @@ async def subscribe(message: Message) -> None:
     group_id = str(message.chat.id)
     await group_service.add_group(group_id)
     await message.answer("Subscribed succesfully!")
+    logging.info(f"Group subscribed to notifications [Group ID:{group_id}]")
 
 
 @router.message(
@@ -27,8 +30,7 @@ async def subscribe(message: Message) -> None:
     AdminFilter(),
 )
 async def unsubscribe(message: Message) -> None:
-    # print(message)
     group_id = str(message.chat.id)
-    print(group_id)
     await group_service.remove_group(group_id)
     await message.answer("Unsubscribed succesfully!")
+    logging.info(f"Group unsubscribed from notifications [Group ID:{group_id}]")
