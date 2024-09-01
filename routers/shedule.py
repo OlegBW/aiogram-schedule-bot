@@ -20,7 +20,9 @@ async def get_today_schedule(message: Message):
 async def get_tommorrow_schedule(message: Message):
     day_of_week_number, week_number = get_day_week()
 
-    next_day = day_of_week_number + 1 if day_of_week_number < 6 else 0
+    if (next_day := day_of_week_number + 1) >= 6:
+        next_day = 0
+        week_number += 1
 
     msg = prepare_schedule_msg(next_day, week_number)
     await message.answer(f"Schedule:\n\n{msg}")
