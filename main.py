@@ -55,7 +55,7 @@ async def send_scheduled_msg(bot: Bot):
         try:
             chat = await bot.get_chat(group_id)
             last_pinned_msg = chat.pinned_message
-            if last_pinned_msg.from_user.id == bot.id:
+            if last_pinned_msg and last_pinned_msg.from_user.id == bot.id:
                 await bot.unpin_chat_message(chat_id=group_id)
                 logging.info(f"Unpin previous sended message [Group ID:{group_id}]")
 
@@ -79,7 +79,7 @@ async def main():
         send_scheduled_msg,
         trigger="cron",
         hour=2,
-        minute=45,
+        minute=50,
         kwargs={
             "bot": bot,
         },
