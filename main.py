@@ -4,43 +4,43 @@ from datetime import datetime
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import Bot, Dispatcher
 from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
+from aiogram.types import BotCommand
 
 from bot import bot
 from services import GroupService
-from routers import subscriptions_router
+from routers import subscriptions_router, schedule_router
 
-from constants import WeekType
-from data import schedule
+from utils import get_day_week, prepare_schedule_msg
 
 group_service = GroupService()
 
 dp = Dispatcher()
-dp.include_routers(subscriptions_router)
+dp.include_routers(subscriptions_router, schedule_router)
 
 
-def prepare_schedule_msg(day: int, week_number: int) -> str:
-    daily_schedule = schedule[day]
-    week_type: WeekType = (
-        WeekType.numerator if week_number % 2 == 0 else WeekType.denominator
-    ).value
+async def on_startup(bot: Bot):
+    commands = [
+        BotCommand(
+            command="/subscribe", description="Subscribe to the schedule notification"
+        ),
+        BotCommand(
+            command="/unsubscribe",
+            description="Unsubscribe from the schedule notification",
+        ),
+        BotCommand(command="/today", description="Get today's schedule"),
+        BotCommand(
+            command="/tomorrow",
+            description="Get the tomorrow's schedule",
+        ),
+    ]
 
-    msg_lines = []
-    for time_slot, subjects in daily_schedule.items():
-        if week_type < len(subjects):
-            msg_lines.append(f"{time_slot}: {subjects[week_type]}")
-
-    if not msg_lines:
-        return "Weekend"
-
-    return "\n".join(msg_lines)
+    await bot.set_my_commands(commands)
 
 
 async def send_scheduled_msg(bot: Bot):
     group_ids = await group_service.get_groups()
 
-    now = datetime.now()
-    day_of_week_number = now.weekday()
-    week_number = now.isocalendar()[1]
+    day_of_week_number, week_number = get_day_week()
 
     msg = prepare_schedule_msg(day_of_week_number, week_number)
 
@@ -58,6 +58,8 @@ async def send_scheduled_msg(bot: Bot):
 
 
 async def main():
+    await on_startup(bot)
+
     scheduler = AsyncIOScheduler()
 
     scheduler.add_job(
