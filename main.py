@@ -78,8 +78,8 @@ async def main():
     scheduler.add_job(
         send_scheduled_msg,
         trigger="cron",
-        hour=2,
-        minute=50,
+        hour=4,
+        minute=0,
         kwargs={
             "bot": bot,
         },
